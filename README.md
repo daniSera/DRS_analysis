@@ -22,3 +22,23 @@ The obtained Differential Algebraic Equations derived from dynamics have been th
 <p align="center" display="inblock">
 <img src="./Presentation/Slide1.PNG" alt="Page1" width="100%"> 
 </p>
+
+<p align="center" display="inblock">
+<img src="./Presentation/Slide2.PNG" alt="Page2" width="100%"> 
+</p>
+
+<p align="center" display="inblock">
+<img src="./Presentation/Slide3.PNG" alt="Page3" width="100%"> 
+</p>
+
+<p align="center" display="inblock">
+<img src="./Presentation/Slide4.PNG" alt="Page4" width="100%"> 
+</p>
+
+<p align="center" display="inblock">
+<img src="./Presentation/Slide5.PNG" alt="Page5" width="100%"> 
+</p>
+
+<p align="center" display="inblock">
+<img src="./Presentation/Slide6.PNG" alt="Page6" width="100%"> 
+</p>
