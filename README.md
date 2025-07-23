@@ -103,7 +103,7 @@ The obtained Differential Algebraic Equations derived from dynamics have been th
 <img src="./Presentation/Slide21.PNG" alt="Page21" width="100%"> 
 </p>
 
-![]("./Presentation/KinematicAnimation.PNG")
+![](./Presentation/KinematicAnimation.gif)
 
 <p align="center" display="inblock">
 <img src="./Presentation/Slide22.PNG" alt="Page22" width="100%"> 
