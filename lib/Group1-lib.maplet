@@ -1,0 +1,238 @@
+
+# Drawing procedure
+draw_mech := proc(sol::{list(`=`),set(`=`)}, data::{list(`=`),set(`=`)}, dof)
+
+          local p0,p1,p2,p3,p3b,p4,p5,rRj,g3,p_act,sp,aa;
+          rRj := 0.002: # radius of joint symbols
+
+          p0  := evalf(subs(sol,data,dof, [comp_XYZ(P0,    ground)])):
+          p1  := evalf(subs(sol,data,dof, [comp_XYZ(P1,    ground)])):
+          p2  := evalf(subs(sol,data,dof, [comp_XYZ(P2,    ground)])):
+          p3  := evalf(subs(sol,data,dof, [comp_XYZ(P3,    ground)])):
+          p3b := evalf(subs(sol,data,dof, [comp_XYZ(P3b,   ground)])):
+          p4  := evalf(subs(sol,data,dof, [comp_XYZ(P4,    ground)])):
+          g3  := evalf(subs(sol,data,dof, [comp_XYZ(Gflap, ground)])):
+          p5  := evalf(subs(sol,data,dof, [comp_XYZ(P5,    ground)])):
+          p_act := evalf(subs(sol,data,dof, [x1,y1])):
+
+                   
+          sp := plot(CurveFitting:-Spline(subs(sol,data,theta3(t)=flap_open,
+                                                             [[comp_XYZ(P2,    RF2)][1..2],
+                                                              [comp_XYZ(Pcurv1, RF2)][1..2],
+                                                              [comp_XYZ(Pcurv2, RF2)][1..2],
+                                                              [comp_XYZ(P3b,   RF2)][1..2]]),v),
+                v=subs(sol,data,theta3(t)=flap_open,comp_X(P2,RF2)..comp_X(P3b,RF2)),thickness=3,color=ColorTools:-GetPalette("Mono")["BlackishGray"]):
+          
+          if mode = 1 then aa := subs(data,LP/2) else aa:=0 end if:
+          display(   #plottools:-disk(p0[1..2],rRj,color="Yellow"),
+                     plottools:-disk(p2[1..2],rRj,color="Gray"),
+                     plottools:-disk(p3[1..2],rRj,color="Gray"),
+                     plottools:-disk(p3b[1..2],rRj,color="Gray"),
+                     plottools:-disk(p4[1..2],rRj,color="white"),
+                     #plottools:-disk(g3[1..2],rRj,color="Violet"),
+                     plottools:-disk(p5[1..2],rRj,color="white"),
+                                 
+                     #plottools:-line(p0[1..2],p1[1..2],thickness=1,color="orange"),
+                     plottools:-line(p_act[1..2],p1[1..2],thickness=7,color=ColorTools:-GetPalette("Mono")["NeutralGray"]),
+                     plottools:-line(p1[1..2],p2[1..2]   ,thickness=2,color=ColorTools:-GetPalette("Mono")["VeryLightGray"]),
+                     plottools:-line(p2[1..2],p3[1..2]   ,thickness=1,color=ColorTools:-GetPalette("Mono")["WhitishGray"],linestyle=dash),
+                     plottools:-rotate(plottools:-translate(sp,p2[1]+aa,p2[2]),subs(sol,data,dof, theta1(t)),p2[1..2]),
+
+                     plottools:-polygon([p4[1..2],p5[1..2],g3[1..2]],color="Red"),
+
+          scaling = constrained,size=[800,300]);
+          
+end proc:
+# Plot position function
+plot_position := proc(dd::{list(`=`),set(`=`)})
+
+          local A,B:
+          
+
+          A := plot(subs(sol_kine, dd, theta3(t) = q1_profile, theta1(t) * 180 /Pi), T = 0..3*actuation_time, color = c_set[1],
+            title = typeset("Position of ", theta__1(t)),labels=["time [s]","Angle [°]"],size = [800, 500]):
+   
+          B := plot(subs(sol_kine, dd, theta3(t) = q1_profile, s(t)), T = 0..3*actuation_time, color = c_set[2],
+            title = typeset("Position of", s(t)),labels=[t (s),typeset([m])],size = [800, 500]):
+
+          print(plots[display](Array([A, B]))):
+
+end proc:
+# Plot velocity function
+plot_velocity := proc(dd::{list(`=`),set(`=`)})
+
+          local A,B:
+          
+          A := plot(subs(sol_kine, dd, theta_base, vel_theta1), T = 0..3*actuation_time, color = c_set[1],
+            title = typeset("Velocity of ", theta__1(t)),labels=["time [s]", "velocity [rad/s]"],size = [800, 500]):
+
+          B := plot(subs(sol_kine, dd, theta_base, vel_s), T = 0..3*actuation_time, color = c_set[2],
+            title = typeset("Velocity of ", s(t)),labels=["time [s]", "velocity [m/s]"],size = [800, 500]):
+
+             print(plots[display](Array([A, B]))):
+end proc:
+# Plot acceleration function
+plot_acceleration := proc(dd::{list(`=`),set(`=`)})
+
+          local A,B:
+          
+
+          A := plot(subs(sol_kine, dd, theta_base, acc_theta1), T = 0..3*actuation_time, color = c_set[1], 
+            title = typeset("Acceleration of ", theta__1(t)),labels = ["time [s]", " acceleration [rad/s^2]"],size = [800, 500]):
+         
+          B := plot(subs(sol_kine, dd, theta_base, acc_s), T = 0..3*actuation_time, color = c_set[2], 
+            title = typeset("Acceleration of ", s(t)),labels = ["time [s]", "acceleration [m/s^2]"],size = [800, 500]):
+
+          print(plots[display](Array([A, B]))):
+ 
+end proc:
+# Plot system configurations
+plot_system := proc(dd::{list(`=`),set(`=`)})
+
+          local A,B:
+          
+
+          A := draw_mech(sol_kine, dd, theta3(t)=flap_closed, title = "Configuration Recursive", size = [500,500]):
+
+          B := draw_mech(sol_kine, dd, theta3(t)=flap_open  , title = "Configuration Recursive", size = [500,500]):
+        
+          print(plots[display](Array([A, B])));
+end proc:
+# Plot reaction forces for NE approach
+plot_reactionforces := proc()
+          
+          local A,B:
+
+          A := odeplot(sol_dae, [t,R1y(t)], t = 0..3*actuation_time-0.001,color=c_set[1],labels=[typeset(t),typeset([N])],title="Reaction force R1y(t) prismatic joint"):
+          B := odeplot(sol_dae, [t,T1z(t)], t = 0..3*actuation_time-0.001,color=c_set[2],labels=[typeset(t),typeset([N])],title="Reaction force T1z(t) prismatic joint"):
+          print(plots[display](Array([A, B]))):
+
+          A := odeplot(sol_dae, [t,R2x(t)], t = 0..3*actuation_time-0.001,color=c_set[3],labels=[typeset(t),typeset([N])],title="Reaction force R2x(t) prismatic joint"):
+          B := odeplot(sol_dae, [t,R2y(t)], t = 0..3*actuation_time-0.001,color=c_set[4],labels=[typeset(t),typeset([N])],title="Reaction force R2y(t) prismatic joint"):
+          print(plots[display](Array([A, B]))):
+
+          A := odeplot(sol_dae, [t,R3x(t)], t = 0..3*actuation_time-0.001,color=c_set[5],labels=[typeset(t),typeset([N])],title="Reaction force R3x(t) prismatic joint"):
+          B := odeplot(sol_dae, [t,R3y(t)], t = 0..3*actuation_time-0.001,color=c_set[6],labels=[typeset(t),typeset([N])],title="Reaction force R3y(t) prismatic joint"):
+          print(plots[display](Array([A, B]))):
+
+          A := odeplot(sol_dae, [t,R4x(t)], t = 0..3*actuation_time-0.001,color=c_set[7],labels=[typeset(t),typeset([N])],title="Reaction force R4x(t) prismatic joint"):
+          B := odeplot(sol_dae, [t,R4y(t)], t = 0..3*actuation_time-0.001,color=c_set[8],labels=[typeset(t),typeset([N])],title="Reaction force R4y(t) prismatic joint"):
+          print(plots[display](Array([A, B]))):
+
+end proc:
+# Plot sampled act() and s(t)
+plot_samples := proc()
+
+          local A,B,C,D:
+          
+          A := plot(samples_act,color=c_set[1],labels=["samples","sampled force [N]"] ,style=point, title="Sampled actuator force"):
+          B := plot(samples_s  ,color=c_set[2],labels=["samples","sampled motion [m]"],style=point, title="Sampled motion of the actuator"):
+
+          C := plot(subs(subs_act,act(t)),t=0..actuation_time,color=c_set[1],labels=["time [s]","Force [N]"],title="Fitted actuator force"):
+          D := plot(subs(subs_s,  s(t)  ),t=0..actuation_time,color=c_set[2],labels=["time [s]","Extension [m]"],title="Fitted motion of the actuator"):
+
+          print(plots[display](Array([A,B]))):
+          print(plots[display](Array([C,D]))):
+
+
+end proc:
+# Plot hydraulic analysis results
+plot_hydr := proc()
+
+          local C,D:
+          
+          C := plot(subs(hydr_sol_dinam,hydr_data,A(t)),t=0..3*actuation_time ,labels=["time [s]",typeset(m^2)],title="Valve area",color=c_set[1]);
+          D := plot(subs(hydr_sol_dinam,hydr_data,V3(t)),t=0..3*actuation_time,labels=["time [s]",typeset(m^3)],title="Volume"    ,color=c_set[2]);
+          print(plots[display](Array([C,D]))):
+
+          C := plot(subs(hydr_sol_dinam,hydr_data,p1(t)),t=0..3*actuation_time,labels=["time [s]","Pressure[bar]"],title="Pressure P1",color=c_set[3]);
+          D := plot(subs(hydr_sol_dinam,hydr_data,p2(t)),t=0..3*actuation_time,labels=["time [s]","Pressure[bar]"],title="Pressure P2",color=c_set[4]);
+          print(plots[display](Array([C,D]))):
+
+          C := plot(subs(hydr_sol_dinam,hydr_data,p3(t)),t=0..3*actuation_time,   labels=["time [s]","Pressure[bar]"],title="Pressure P3",color=c_set[5]);
+          D := plot(subs(hydr_sol_dinam,hydr_data,q1__lex(t)),t=0..3*actuation_time,labels=["time [s]","Flow rate[m^3/s]"],title="Leakage flow rate",color=c_set[6]);
+          print(plots[display](Array([C,D]))):
+
+          C := plot(subs(hydr_sol_dinam,hydr_data,q__12(t)),t=0..3*actuation_time,labels=["time [s]","Flow rate[m^3/s]"],title="Q12 flow rate",color=c_set[7]);
+          D := plot(subs(hydr_sol_dinam,hydr_data,q__23(t)),t=0..3*actuation_time,labels=["time [s]","Flow rate[m^3/s]"],title="Q23 flow rate",color=c_set[7]);
+          print(plots[display](Array([C,D]))):
+
+end proc:
+# Dynamic optimization - NE
+dynam_opt_ne := proc(aaa,bbb,ccc,ddd,eee)
+   local param,E,G,NE,NG,r_vars0,dof0,vel_dof0,qD0,vel_qD0,ics0,sol_act_dinam,dae_ics,subs_inertia,dae_sys,sol_dae,cost_fun,i,k:
+
+   param := [L1 = aaa,LP = bbb,anc = ccc,x1 = ddd,y1 = eee]:
+   subs_inertia := {m1  = subs(data_dae,sp=0.010,l=0.004,4510*L1*sp*l),
+                    Iz1 = subs(data_dae,l=0.004,sp=0.010,1/12*4510*L1*sp*l*(L1^2+sp^2)),
+                    m2  = subs(data_dae,sp=0.010,l=0.004,4510*LP*sp*l),
+                    Iz2 = subs(data_dae,l=0.004,sp=0.010,1/12*4510*LP*sp*l*(LP^2+sp^2))
+   }:
+
+   #Estimate the initial conditions
+   dof0 := theta3(t) = flap_closed:
+   vel_dof0 := diff(theta3(t),t) = 0:
+   qD0 := op(evalf(subs(dof0, data_dae,param, sol_kine))): 
+   vel_qD0 := op(subs(vel_dof0, dof0, data_dae,param, [sol_vel])): 
+   ics0 := [dof0, vel_dof0, qD0, vel_qD0]:
+
+   #Estimate the actuation force
+   sol_act_dinam := subs(forcesub,gamma(t)=q1_profile_t,sol_kine,theta3(t)=q1_profile_t,data_dae,subs_inertia,param,sol_act):
+
+   #Estimate the reaction forces
+   E, G := GenerateMatrix(subs(forcesub,gamma(t)=theta3(t),eqns), diff(q_vars,t,t) union r_vars):
+   NE := evalf(subs(subs(forcesub,gamma(t)=theta3(t),sol_act), ics0,subs_inertia, data_dae,param, E)):
+   NG := evalf(subs(subs(forcesub,gamma(t)=theta3(t),sol_act), ics0,subs_inertia, data_dae,param, G)):
+   LinearSolve(NE, NG):
+   r_vars0 := [seq(r_vars[-i] = %[-i],i=1..nops(r_vars))]:
+
+   #Assembling the generic DAE
+   dae_ics := subs(t=0,subs_inertia,data_dae,convert(convert(ics0,set)  minus {diff(theta1(t),t)=0} ,D) union r_vars0 ):
+   dae_sys := convert(subs(sol_act_dinam,forcesub,gamma(t)=q1_profile_t,subs_inertia,data_dae, ne_eqns) union dae_ics,set):
+   sol_dae := dsolve(dae_sys,numeric,stiff=true,parameters = [L1,LP,anc,x1,y1]):
+   sol_dae(parameters = subs(param,[L1,LP,anc,x1,y1])):
+
+   #Cost function
+   cost_fun :=1/W*add(subs(subs_inertia,data_dae,param,(delta__s[k]-rhs(sol_dae(k/np*actuation_time)[10]))^2),k=1..np);
+end proc:
+# Dynamic optimization - Lagrange
+dynam_opt_lagr := proc(aaa,bbb,ccc,ddd,eee,fff)
+   local param,E,G,NE,NG,l_vars0,dof0,vel_dof0,qD0,vel_qD0,ics0,sol_act_dinam,dae_ics,dae_sys,sol_dae,cost_fun,i,k,subs_inertia, delta__s:
+
+
+
+   subs_inertia := {m1  = subs(data_dae,sp=0.010,l=0.004,4510*L1*sp*l),
+                    Iz1 = subs(data_dae,l=0.004,sp=0.010,1/12*4510*L1*sp*l*(L1^2+sp^2)),
+                    m2  = subs(data_dae,sp=0.010,l=0.004,4510*LP*sp*l),
+                    Iz2 = subs(data_dae,l=0.004,sp=0.010,1/12*4510*LP*sp*l*(LP^2+sp^2))
+   }:
+   param := [L1 = aaa,LP = bbb,anc = ccc,x1 = ddd,y1 = eee, s__closed = fff]:
+
+   #Estimate the initial conditions
+   dof0 := theta3(t) = flap_closed:
+   vel_dof0 := diff(theta3(t),t) = 0:
+   qD0 := op(evalf(subs(dof0, data_dae,param, sol_kine))): 
+   vel_qD0 := op(subs(vel_dof0, dof0, data_dae,param, [sol_vel])): 
+   ics0 := [dof0, vel_dof0, qD0, vel_qD0]:
+
+   #Estimate the actuation force
+   sol_act_dinam := subs(forcesub,gamma(t)=q1_profile_t,sol_kine,theta3(t)=q1_profile_t,subs_inertia,data_dae,param,sol_act):
+
+   #Estimate the reaction forces
+   E, G := GenerateMatrix(subs(forcesub,gamma(t)=theta3(t),eqns), diff(q_vars,t,t) union l_vars):
+   NE := evalf(subs(subs(forcesub,gamma(t)=theta3(t),sol_act), ics0,subs_inertia, data_dae, E)):
+   NG := evalf(subs(subs(forcesub,gamma(t)=theta3(t),sol_act), ics0,subs_inertia, data_dae, G)):
+   LinearSolve(NE, NG):
+   l_vars0 := [seq(l_vars[-i] = %[-i],i=1..nops(l_vars))]:
+
+   #Assembling the generic DAE
+   dae_ics := subs(t=0,subs_inertia,data_dae,convert(convert(ics0,set),D) union l_vars0 ): 
+   dae_sys := convert(subs(sol_act_dinam,forcesub,gamma(t)=q1_profile_t,subs_inertia,data_dae, la_eqns) union dae_ics,set):
+   sol_dae := dsolve(dae_sys,numeric, method = rosenbrock_dae ,stiff = true, output = listprocedure,parameters = [L1,LP,anc,x1,y1]):
+   sol_dae(parameters = subs(param,[L1,LP,anc,x1,y1])):
+
+   #Cost function
+   delta__s      := [seq(evalf(subs(T=i/np*actuation_time,subs(param_opt,Fd_s))),i=1..np)];
+   cost_fun :=1/W*add(subs(subs_inertia,data_dae,param,(delta__s[k]-rhs(sol_dae(k/np*actuation_time)[4]))^2),k=1..np);
+end proc:
+
