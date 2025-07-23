@@ -16,3 +16,9 @@ The obtained Differential Algebraic Equations derived from dynamics have been th
 -   [maplesim](/maplesim/) folder contains the files for the hydraulic simulation
 -   [matlab](/matlab/) folder contains all the Matlab files used to study the exported DAEs
 -   [inventor](/inventor/) folder contains the CAD files used to estimate the flap dimensions
+
+## Full Presentation
+
+<p align="center" display="inblock">
+<img src="./Presentation/Slide1.PNG" alt="Page1" width="100%"> 
+</p>
